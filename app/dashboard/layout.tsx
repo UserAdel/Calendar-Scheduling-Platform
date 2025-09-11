@@ -18,13 +18,31 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { requireUser } from "@/lib/hooks";
+import { prisma } from "@/lib/db";
+import { redirect } from "next/navigation";
 
+async function getData(userId: string) {
+  const data = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { userName: true, grantId: true },
+  });
+
+  if (!data?.userName) {
+    redirect("/onboarding");
+  }
+
+  if (!data.grantId) {
+    redirect("/onboarding/grant-id");
+  }
+  return data;
+}
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const session = await requireUser();
+  const data = await getData(session.user?.id as string);
   return (
     <div className="min-h-screen w-full grid md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden md:block border-r bg-muted/40">
