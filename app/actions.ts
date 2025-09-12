@@ -2,7 +2,11 @@
 
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/hooks";
-import { onboardingSchema, onboardingSchemaValidation } from "@/lib/zodSchemas";
+import {
+  onboardingSchema,
+  onboardingSchemaValidation,
+  settingSchema,
+} from "@/lib/zodSchemas";
 import { parseWithZod } from "@conform-to/zod/v4";
 import { redirect } from "next/navigation";
 export async function OnBoardingAction(prevState: any, formData: FormData) {
@@ -33,4 +37,21 @@ export async function OnBoardingAction(prevState: any, formData: FormData) {
 
   // Return success or redirect after successful submission
   return redirect("/onboarding/grant-id");
+}
+
+export async function settingAction(prevState: any, formData: FormData) {
+  const session = await requireUser();
+  const submission = parseWithZod(formData, { schema: settingSchema });
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  await prisma.user.update({
+    where: { id: session.user?.id },
+    data: {
+      name: submission.value.fullName,
+      image: submission.value.profileImage,
+    },
+  });
+  return redirect("/dashboard");
 }

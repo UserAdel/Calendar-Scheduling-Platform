@@ -29,7 +29,7 @@ export const dashboardLinks: iAppProps[] = [
     href: "/dashboard/availability",
     icon: CalendarCheck,
   },
-  { id: 3, name: "Setting", href: "/dashboard/setting", icon: Settings },
+  { id: 3, name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 export function DashboardLinks() {
   const pathname = usePathname();

@@ -1,5 +1,5 @@
 import { conformZodMessage } from "@conform-to/zod/v4";
-import { z } from "zod";
+import { email, z } from "zod";
 
 export const onboardingSchema = z.object({
   fullName: z.coerce
@@ -58,3 +58,12 @@ export function onboardingSchemaValidation(options?: {
       .max(150),
   });
 }
+
+export const settingSchema = z.object({
+  fullName: z
+    .string()
+    .min(3, { message: "Full name must be at least 3 characters" })
+    .max(150, { message: "Full name must be at most 150 characters" }),
+  profileImage: z.string(),
+  email: z.string(),
+});
