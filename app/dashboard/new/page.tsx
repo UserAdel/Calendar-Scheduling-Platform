@@ -83,7 +83,7 @@ export default function NewEventRoute() {
             <div className="flex flex-col gap-y-2 ">
               <Label>Description</Label>
               <Textarea
-                name={fields.duration.name}
+                name={fields.description.name}
                 key={fields.description.key}
                 defaultValue={fields.description.initialValue}
                 placeholder="Meet me in the meeting to meet me!"

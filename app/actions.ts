@@ -144,11 +144,11 @@ export async function CreateEventTypeAction(
   if (submission.status !== "success") {
     return submission.reply();
   }
-  
+
   if (!session.user?.id) {
     throw new Error("User ID is required");
   }
-  
+
   await prisma.eventType.create({
     data: {
       title: submission.value.title,
@@ -159,4 +159,6 @@ export async function CreateEventTypeAction(
       userId: session.user.id,
     },
   });
+
+  return redirect("/dashboard");
 }
