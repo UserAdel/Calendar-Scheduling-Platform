@@ -8,6 +8,7 @@ import {
   settingSchema,
 } from "@/lib/zodSchemas";
 import { parseWithZod } from "@conform-to/zod/v4";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 export async function OnBoardingAction(prevState: any, formData: FormData) {
   const user = await requireUser();
@@ -32,6 +33,48 @@ export async function OnBoardingAction(prevState: any, formData: FormData) {
     data: {
       name: submission.value.fullName,
       userName: submission.value.userName,
+      availability: {
+        createMany: {
+          data: [
+            {
+              day: "Monday",
+              formTime: "08:00",
+              tillTime: "18:00",
+            },
+            {
+              day: "Tuesday",
+              formTime: "08:00",
+              tillTime: "18:00",
+            },
+
+            {
+              day: "Wednesday",
+              formTime: "08:00",
+              tillTime: "18:00",
+            },
+            {
+              day: "Tuesday",
+              formTime: "08:00",
+              tillTime: "18:00",
+            },
+            {
+              day: "Friday",
+              formTime: "08:00",
+              tillTime: "18:00",
+            },
+            {
+              day: "Saturday",
+              formTime: "08:00",
+              tillTime: "18:00",
+            },
+            {
+              day: "Sunday",
+              formTime: "08:00",
+              tillTime: "18:00",
+            },
+          ],
+        },
+      },
     },
   });
 
@@ -54,4 +97,39 @@ export async function settingAction(prevState: any, formData: FormData) {
     },
   });
   return redirect("/dashboard");
+}
+
+export async function updateAvailabilityAction(formData: FormData) {
+  const session = await requireUser();
+  const rawData = Object.fromEntries(formData.entries());
+  const availabilityData = Object.keys(rawData)
+    .filter((key) => key.startsWith("id-"))
+    .map((key) => {
+      const id = key.replace("id-", "");
+      return {
+        id,
+        isActive: rawData[`isActive-${id}`] === "on",
+        formTime: rawData[`formTime-${id}`] as string,
+        tillTime: rawData[`tillTime-${id}`] as string,
+      };
+    });
+  console.log(rawData);
+  console.log(availabilityData);
+  try {
+    await prisma.$transaction(
+      availabilityData.map((item) =>
+        prisma.availability.update({
+          where: { id: item.id },
+          data: {
+            isActive: item.isActive,
+            formTime: item.formTime,
+            tillTime: item.tillTime,
+          },
+        })
+      )
+    );
+    revalidatePath("/dashboard/availability");
+  } catch (error) {
+    console.log(error);
+  }
 }
