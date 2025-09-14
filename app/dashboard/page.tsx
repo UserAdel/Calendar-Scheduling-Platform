@@ -88,7 +88,7 @@ export default async function DashboardPage() {
                       <DropdownMenuSeparator />
                       <DropdownMenuGroup>
                         <DropdownMenuItem asChild>
-                          <Link href={`/${data.userName}${item.url}`}>
+                          <Link href={`/${data.userName}/${item.url}`}>
                             <ExternalLink className="mr-2 size-4" /> Preview
                           </Link>
                         </DropdownMenuItem>
