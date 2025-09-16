@@ -1,12 +1,15 @@
 import { RenderCalendar } from "@/app/_components/bookingForm/RenderCalendar";
+import { TimeTable } from "@/app/_components/bookingForm/TimeTable";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { prisma } from "@/lib/db";
+import { requireUser } from "@/lib/hooks";
 import { CalendarX2, Clock, VideoIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 
 // TODO Improve Security
 async function getData(eventUrl: string, userName: string) {
+  
   try {
     const data = await prisma.eventType.findFirst({
       where: {
@@ -116,7 +119,7 @@ export default async function BookingFromRoute({
           <Separator orientation="vertical" className="h-full w-[1px]" />
           <RenderCalendar availability={data.User?.availability} />
           <Separator orientation="vertical" className="h-full w-[1px]" />
-          <div className="p-4">placeHolder</div>
+          <TimeTable selectedDate={selectedDate} userName={username} />
         </CardContent>
       </Card>
     </div>
