@@ -1,12 +1,12 @@
 import { RenderCalendar } from "@/app/_components/bookingForm/RenderCalendar";
 import { TimeTable } from "@/app/_components/bookingForm/TimeTable";
 import { SubmitButton } from "@/app/_components/SubmitButtons";
+import { CreateMeetingAction } from "@/app/actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { prisma } from "@/lib/db";
-import { requireUser } from "@/lib/hooks";
 import { CalendarX2, Clock, VideoIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 
@@ -123,14 +123,36 @@ export default async function BookingFromRoute({
             </div>
             <Separator orientation="vertical" className="h-full w-[1px]" />
 
-            <form className="flex flex-col gap-y-4">
+            <form
+              className="flex flex-col gap-y-4"
+              action={CreateMeetingAction}
+            >
+              <input
+                type="hidden"
+                name="formTime"
+                value={(await searchParams).time}
+              />
+              <input
+                type="hidden"
+                name="eventDate"
+                value={(await searchParams).date}
+              />
+              <input type="hidden" name="meetingLength" value={data.duration} />
+              <input
+                type="hidden"
+                name="provider"
+                value={data.videoCallSoftware}
+              />
+              <input type="hidden" name="username" value={username} />
+              <input type="hidden" name="eventTypeId" value={data.id} />
+
               <div className="flex flex-col gap-y-2 ">
                 <Label>Your Name</Label>
-                <Input placeholder="Your Name"></Input>
+                <Input name="name" placeholder="Your Name"></Input>
               </div>
               <div className="flex flex-col gap-y-2 ">
                 <Label>Your Email</Label>
-                <Input placeholder="John@example.com"></Input>
+                <Input name="email" placeholder="John@example.com"></Input>
               </div>
               <SubmitButton text="Book Meeting" className="w-full mt-5" />
             </form>

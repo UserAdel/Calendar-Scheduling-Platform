@@ -5,7 +5,6 @@ import { requireUser } from "@/lib/hooks";
 import { nylas } from "@/lib/nylas";
 import {
   eventTypeSchema,
-  onboardingSchema,
   onboardingSchemaValidation,
   settingSchema,
 } from "@/lib/zodSchemas";
@@ -167,7 +166,7 @@ export async function CreateEventTypeAction(
 export async function CreateMeetingAction(formData: FormData) {
   const getUserData = await prisma.user.findUnique({
     where: {
-      id: formData.get("userId") as string,
+      userName: formData.get("username") as string,
     },
     select: {
       grantEmail: true,
@@ -179,7 +178,7 @@ export async function CreateMeetingAction(formData: FormData) {
   }
   const eventTypeData = await prisma.eventType.findUnique({
     where: {
-      id: formData.get("eventType") as string,
+      id: formData.get("eventTypeId") as string,
     },
     select: {
       title: true,
@@ -218,4 +217,96 @@ export async function CreateMeetingAction(formData: FormData) {
       notifyParticipants: true,
     },
   });
+  return redirect("/success");
+}
+
+export async function cancelMeetingAction(formData: FormData) {
+  const session = await requireUser();
+
+  const userData = await prisma.user.findUnique({
+    where: {
+      id: session.user?.id,
+    },
+    select: {
+      grantEmail: true,
+      grantId: true,
+    },
+  });
+  if (!userData) {
+    throw new Error("User not found");
+  }
+  const data = await nylas.events.destroy({
+    eventId: formData.get("eventId") as string,
+    identifier: userData.grantId as string,
+    queryParams: { calendarId: userData.grantEmail as string },
+  });
+  revalidatePath("/dashboard/meetings");
+}
+
+export async function editEventTypeAction(prevState: any, formData: FormData) {
+  const session = await requireUser();
+  const submission = parseWithZod(formData, { schema: eventTypeSchema });
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  const data = await prisma.eventType.update({
+    where: {
+      id: formData.get("id") as string,
+      userId: session.user?.id,
+    },
+    data: {
+      title: submission.value.title,
+      duration: submission.value.duration,
+      url: submission.value.url,
+      description: submission.value.description,
+      videoCallSoftware: submission.value.videoCallSoftware,
+    },
+  });
+  return redirect("/dashboard");
+}
+
+export async function UpdateEventTypeStatusAction(
+  prevState: any,
+  {
+    eventTypeId,
+    isChecked,
+  }: {
+    eventTypeId: string;
+    isChecked: boolean;
+  }
+) {
+  try {
+    const session = await requireUser();
+    const data = await prisma.eventType.update({
+      where: {
+        id: eventTypeId,
+        userId: session.user?.id,
+      },
+      data: {
+        active: isChecked,
+      },
+    });
+    revalidatePath("/dashboard");
+    return {
+      status: "success",
+      message: "Event Type Status Updated!",
+    };
+  } catch (error) {
+    return {
+      status: "error",
+      message: "something went wrong",
+    };
+  }
+}
+
+export async function DeleteEventTypeAction(formData: FormData) {
+  const session = await requireUser();
+  const data = await prisma.eventType.delete({
+    where: {
+      id: formData.get("id") as string,
+      userId: session.user?.id,
+    },
+  });
+  return redirect("/dashboard");
 }
