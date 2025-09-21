@@ -1,5 +1,5 @@
 import { conformZodMessage } from "@conform-to/zod/v4";
-import { email, z } from "zod";
+import { z } from "zod";
 
 export const onboardingSchema = z.object({
   fullName: z.coerce

@@ -128,6 +128,7 @@ function caluculateAvailableTimeSlots(
     first?.timeSlot ??
     first?.time_slots ??
     []) as any[];
+  //@ts-ignore
   const busySlots = rawSlots.map((slot: any) => ({
     start: fromUnixTime(slot.startTime ?? slot.start_time),
     end: fromUnixTime(slot.endTime ?? slot.end_time),
