@@ -11,6 +11,7 @@ import {
 import { parseWithZod } from "@conform-to/zod/v4";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { signIn } from "@/lib/auth";
 export async function OnBoardingAction(prevState: any, formData: FormData) {
   const user = await requireUser();
   const submission = await parseWithZod(formData, {
@@ -164,59 +165,83 @@ export async function CreateEventTypeAction(
 }
 
 export async function CreateMeetingAction(formData: FormData) {
-  const getUserData = await prisma.user.findUnique({
-    where: {
-      userName: formData.get("username") as string,
-    },
-    select: {
-      grantEmail: true,
-      grantId: true,
-    },
-  });
-  if (!getUserData) {
-    throw new Error("User not found");
-  }
-  const eventTypeData = await prisma.eventType.findUnique({
-    where: {
-      id: formData.get("eventTypeId") as string,
-    },
-    select: {
-      title: true,
-      description: true,
-    },
-  });
-  const formTime = formData.get("formTime") as string;
-  const eventDate = formData.get("eventDate") as string;
-  const meetingLength = Number(formData.get("meetingLength"));
-  const provider = formData.get("provider") as string;
-  const startDateTime = new Date(`${eventDate}T${formTime}:00`);
-  const endDateTime = new Date(
-    startDateTime.getTime() + meetingLength * 60 * 1000
-  );
-
-  await nylas.events.create({
-    identifier: getUserData.grantId as string,
-    requestBody: {
-      title: eventTypeData?.title,
-      description: eventTypeData?.description,
-      when: {
-        startTime: Math.floor(startDateTime.getTime() / 1000),
-        endTime: Math.floor(endDateTime.getTime() / 1000),
+  try {
+    const getUserData = await prisma.user.findUnique({
+      where: {
+        userName: formData.get("username") as string,
       },
-      conferencing: { autocreate: {}, provider: provider as any },
-      participants: [
-        {
-          email: formData.get("email") as string,
-          name: formData.get("name") as string,
-          status: "yes",
+      select: {
+        grantEmail: true,
+        grantId: true,
+      },
+    });
+    if (!getUserData) {
+      throw new Error("User not found");
+    }
+    
+    const eventTypeData = await prisma.eventType.findUnique({
+      where: {
+        id: formData.get("eventTypeId") as string,
+      },
+      select: {
+        title: true,
+        description: true,
+      },
+    });
+    
+    const formTime = formData.get("formTime") as string;
+    const eventDate = formData.get("eventDate") as string;
+    const meetingLength = Number(formData.get("meetingLength"));
+    const provider = formData.get("provider") as string;
+    const participantEmail = formData.get("email") as string;
+    const participantName = formData.get("name") as string;
+    
+    const startDateTime = new Date(`${eventDate}T${formTime}:00`);
+    const endDateTime = new Date(
+      startDateTime.getTime() + meetingLength * 60 * 1000
+    );
+
+    console.log("Creating meeting with Nylas:", {
+      grantId: getUserData.grantId,
+      calendarId: getUserData.grantEmail,
+      participantEmail,
+      participantName,
+      startTime: startDateTime,
+      endTime: endDateTime,
+      title: eventTypeData?.title,
+    });
+
+    const eventResponse = await nylas.events.create({
+      identifier: getUserData.grantId as string,
+      requestBody: {
+        title: eventTypeData?.title,
+        description: eventTypeData?.description,
+        when: {
+          startTime: Math.floor(startDateTime.getTime() / 1000),
+          endTime: Math.floor(endDateTime.getTime() / 1000),
         },
-      ],
-    },
-    queryParams: {
-      calendarId: getUserData.grantEmail as string,
-      notifyParticipants: true,
-    },
-  });
+        conferencing: { autocreate: {}, provider: provider as any },
+        participants: [
+          {
+            email: participantEmail,
+            name: participantName,
+            status: "yes",
+          },
+        ],
+      },
+      queryParams: {
+        calendarId: getUserData.grantEmail as string,
+        notifyParticipants: true,
+      },
+    });
+
+    console.log("Meeting created successfully:", eventResponse);
+  } catch (error) {
+    console.error("Error creating meeting:", error);
+    throw new Error(`Failed to create meeting: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+  
+  // Redirect after successful meeting creation (outside try-catch)
   return redirect("/success");
 }
 
@@ -309,4 +334,12 @@ export async function DeleteEventTypeAction(formData: FormData) {
     },
   });
   return redirect("/dashboard");
+}
+
+export async function signInWithGoogle() {
+  await signIn("google");
+}
+
+export async function signInWithGitHub() {
+  await signIn("github");
 }
