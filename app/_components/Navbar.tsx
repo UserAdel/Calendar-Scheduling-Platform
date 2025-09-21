@@ -15,7 +15,7 @@ export async function Navbar() {
           height={120}
         />
         <h4 className="text-3xl font-semibold">
-          Cal<span className="text-blue-500">Marshal</span>
+          Schedule<span className="text-blue-500">Pro</span>
         </h4>
       </Link>
 

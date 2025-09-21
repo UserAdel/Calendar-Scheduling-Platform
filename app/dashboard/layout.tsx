@@ -59,7 +59,7 @@ export default async function DashboardLayout({
                   height={120}
                 />
                 <p className="text-xl font-bold">
-                  Cal<span className="text-primary">Marshal</span>
+                  Schedule<span className="text-primary">Pro</span>
                 </p>
               </Link>
             </div>

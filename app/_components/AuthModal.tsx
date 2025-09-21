@@ -27,7 +27,7 @@ export function AuthModal() {
             height={120}
           />
           <DialogTitle className="text-3xl font-semibold">
-            Cal<span className="text-primary">Marshal</span>
+            Schedule<span className="text-primary">Pro</span>
           </DialogTitle>
         </DialogHeader>
         <div className="flex flex-col mt-5 gap-3">

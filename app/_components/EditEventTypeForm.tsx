@@ -84,7 +84,7 @@ export function EditEventForm({
               <Label>URL Slug</Label>
               <div className="flex rounded-md">
                 <span className="inline-flex items-center px-3 rounded-l-md border broder-r-0 border-muted bg-muted text-sm text-muted-foreground">
-                  calMarshal.com/
+                  schedulepro.com/
                 </span>
                 <Input
                   placeholder="Example-url-1"
