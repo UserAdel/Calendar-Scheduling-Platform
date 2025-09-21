@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { AuthModal } from "./AuthModal";
+import { ThemeToggle } from "./ThemeProvider";
 
 export async function Navbar() {
   return (
@@ -18,7 +19,10 @@ export async function Navbar() {
         </h4>
       </Link>
 
-      <AuthModal />
+      <div className="hidden md:flex md:justify-end md:space-x-4">
+        <ThemeToggle />
+        <AuthModal />
+      </div>
     </div>
   );
 }
