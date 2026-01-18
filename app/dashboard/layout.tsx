@@ -97,7 +97,7 @@ export default async function DashboardLayout({
                     size="icon"
                     className="rounded-full"
                   >
-                    <img
+                    <Image
                       src={session?.user?.image as string}
                       alt="profile image"
                       width={20}

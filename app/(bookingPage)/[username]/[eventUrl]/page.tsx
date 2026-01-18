@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { prisma } from "@/lib/db";
 import { CalendarX2, Clock, VideoIcon } from "lucide-react";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 
 // TODO Improve Security
 async function getData(eventUrl: string, userName: string) {
@@ -81,17 +82,19 @@ export default async function BookingFromRoute({
     day: "numeric",
     month: "long",
   }).format(selectedDate);
-  const showForm = !!(await searchParams).date && !!(await searchParams).time;
+  const showForm = !!resolvedSearchParams.date && !!resolvedSearchParams.time;
   return (
     <div className="min-h-screen w-screen flex items-center justify-center">
       {showForm ? (
         <Card className="max-w-[600px] w-full ">
           <CardContent className="p-5 md:grid md:grid-cols-[1fr_auto_1fr] gap-4 ">
             <div>
-              <img
+              <Image
                 src={data.User.image as string}
                 alt="Profile Image of user"
                 className="size-10 rounded-full "
+                width={40}
+                height={40}
               />
               <p className="text-sm font-medium text-muted-foreground mt-1 ">
                 {data.User?.name}
@@ -130,12 +133,12 @@ export default async function BookingFromRoute({
               <input
                 type="hidden"
                 name="formTime"
-                value={(await searchParams).time}
+                value={resolvedSearchParams.time}
               />
               <input
                 type="hidden"
                 name="eventDate"
-                value={(await searchParams).date}
+                value={resolvedSearchParams.date}
               />
               <input type="hidden" name="meetingLength" value={data.duration} />
               <input
@@ -162,10 +165,12 @@ export default async function BookingFromRoute({
         <Card className="max-w-[1000px] w-full mx-auto">
           <CardContent className="p-5 md:grid md:grid-cols-[1fr_auto_1fr_auto_1fr] gap-4 ">
             <div>
-              <img
+              <Image
                 src={data.User.image as string}
                 alt="Profile Image of user"
                 className="size-10 rounded-full "
+                width={40}
+                height={40}
               />
               <p className="text-sm font-medium text-muted-foreground mt-1 ">
                 {data.User?.name}

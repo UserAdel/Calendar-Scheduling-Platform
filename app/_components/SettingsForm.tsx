@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import {
   Card,
@@ -78,9 +79,11 @@ export function SettingForm({ fullName, email, profileImage }: iAppProps) {
             />
             {currentProfileImage ? (
               <div className="relative size-16">
-                <img
+                <Image
                   src={currentProfileImage}
                   alt="profile iamge"
+                  width={64}
+                  height={64}
                   className="size-16 rounded-lg"
                 />
                 <Button
